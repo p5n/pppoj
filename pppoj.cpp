@@ -82,6 +82,7 @@ public:
     std::string s((char *)buf, count);
     const Message msg(Message::Normal, partner, s);
     j->send( msg );
+    printf("SRaw:%s\n", s.c_str());
   }
 
 private:
