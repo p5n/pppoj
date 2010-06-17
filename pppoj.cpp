@@ -3,8 +3,6 @@
  *
  * You may do whatever you want with this code.
  *
- * g++ pppoj.cpp -o pppoj -lgloox -lpthread
- *
  * Usage: pppoj <JID> <password> <other-JID> -master|-slave
  */
 
@@ -20,6 +18,8 @@
 #include <termios.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
 
 using namespace gloox;
 
@@ -29,6 +29,7 @@ public:
   Bot(int fd, const char *jid, const char *password, const char *other)
   {
     pipefd = fd;
+    child_pid = 1;
     partner = other;
     JID myjid( jid );
     j = new Client( myjid, password );
@@ -45,7 +46,14 @@ public:
       return;
     std::string s = msg.body();
     if (s == "hello")
+    {
+      printf("Hello\n");
+      if(child_pid != 1)
+      {
+        kill(child_pid, SIGHUP);
+      }
       return;
+    }
     std::string dec = Base64::decode64(s);
     write(pipefd, dec.c_str(), dec.length());
   }
@@ -53,6 +61,11 @@ public:
   void recv()
   {
     j->recv(5000);
+  }
+
+  void set_child_pid(int pid)
+  {
+    child_pid = pid;
   }
 
   void send(const void *buf, int count)
@@ -63,15 +76,27 @@ public:
     j->send( msg );
   }
 
+  void send_raw(const void *buf, int count)
+  {
+    std::string s((char *)buf, count);
+    const Message msg(Message::Normal, partner, s);
+    j->send( msg );
+  }
+
 private:
   std::string partner;
   int pipefd;
   Client* j;
+  int child_pid;
 };
 
 void usage()
 {
   printf("Usage: pppoj <JID> <password> <other-JID> -master|-slave\n");
+}
+
+int start_pppd(int ismaster)
+{
 }
 
 int main( int argc, char* argv[] )
@@ -92,28 +117,37 @@ int main( int argc, char* argv[] )
   printf("Connecting...\n");
   Bot b(readpipe[1], argv[1], argv[2], argv[3]);
   printf("Connected\n");
-  const char *cmd;
-  char suffix[100];
-  sprintf(suffix, " <&%d >&%d",  readpipe[0], writepipe[1]);
   int readfd = writepipe[0];
-  if (!strcmp(argv[4], "-master"))
-    cmd = "pppd updetach noauth passive notty ipparam vpn 10.0.0.1:10.0.0.2";
-  else if (!strcmp(argv[4], "-slave"))
-    cmd = "pppd nodetach notty noauth";
-  else {
-    usage();
-    return 0;
-  }
-  std::string command = std::string(cmd) + suffix;
+  int ismaster = !strcmp(argv[4], "-master");
   int ret = fork();
   if (ret < 0) {
     perror("fork");
     return 1;
-  } else if (ret == 0)
-    system(command.c_str());
+  }
+  else if (ret == 0)
+  {
+    dup2(readpipe[0], 0);
+    dup2(writepipe[1],1);
+    // close fds
+    close(readpipe[0]);
+    close(readpipe[1]);
+    close(writepipe[0]);
+    close(writepipe[1]);
+    if(ismaster)
+      execl(PPPD_PATH, "updetach", "persist", "noauth", "passive", "notty", "ipparam", "pppoj", "10.0.0.1:10.0.0.2", NULL);
+    else
+      execl(PPPD_PATH, "nodetach", "notty", "noauth", NULL);
+  }
   else
+  {
+    int hello_sent = 0;
     while (1) {
       b.recv();
+      if(!ismaster && !hello_sent)
+      {
+        hello_sent = 1;
+        b.send_raw("hello", 5);
+      }
       struct timeval tmo;
       fd_set rset, eset;
       FD_ZERO(&rset);
@@ -126,12 +160,16 @@ int main( int argc, char* argv[] )
         perror("select");
       if (ret == 0)
         continue;
-      if(FD_ISSET(readfd,&rset)) {
+      if(FD_ISSET(readfd,&rset))
+      {
         char buf[1024];
         memset(buf, 0, sizeof(buf));
         int count = read(readfd, buf, sizeof(buf));
         if (count > 0)
+        {
           b.send(buf, count);
+        }
       }
     }
+  }
 }

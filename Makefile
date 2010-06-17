@@ -1,12 +1,20 @@
+# #############################################################################
+# CONFIG
+#
+
 DESTDIR=
 PREFIX=/usr
+PPPD_PATH="\"/usr/sbin/pppd\""
+
+#
+# #############################################################################
 
 all: pppoj
 
 D=$(shell basename $(shell pwd))
 
 pppoj: pppoj.cpp
-	g++ pppoj.cpp -o pppoj -lgloox -lpthread
+	g++ pppoj.cpp -o pppoj -lgloox -lpthread -DPPPD_PATH=$(PPPD_PATH)
 
 clean:
 	rm pppoj
