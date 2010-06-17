@@ -47,9 +47,10 @@ public:
     std::string s = msg.body();
     if (s == "hello")
     {
-      printf("Hello\n");
+      printf("New client\n");
       if(child_pid != 1)
       {
+        printf("pppd(%d) SIGHUP\n", child_pid);
         kill(child_pid, SIGHUP);
       }
       return;
@@ -141,6 +142,7 @@ int main( int argc, char* argv[] )
   else
   {
     int hello_sent = 0;
+    b.set_child_pid(ret);
     while (1) {
       b.recv();
       if(!ismaster && !hello_sent)
