@@ -1,0 +1,27 @@
+# Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
+
+pkgname=pppoj
+pkgver=20100617
+pkgrel=1
+pkgdesc="PPP over Jabber"
+arch=(i686 x86_64)
+url="http://code.google.com/p/pppoj/"
+license=('GPL')
+depends=('gloox')
+backup=(etc/conf.d/pppoj.conf)
+source=("http://pppoj.googlecode.com/files/pppoj-$pkgver.tar.gz"
+	pppoj.conf.d
+	pppoj.rc)
+md5sums=('0eaf50cd761105522eb8b0310bd53689'
+         '65275df5107e2ebb14e9ca86ed1b4b21'
+         '7c65ba645bcdcc9969eca0f4e760941f')
+
+build() {
+  cd "$srcdir/pppoj.hg"
+
+  make || return 1
+  make install DESTDIR=$pkgdir || return
+
+  install -D -m0600 $srcdir/pppoj.conf.d $pkgdir/etc/conf.d/pppoj.conf && \
+  install -D -m0755 $srcdir/pppoj.rc $pkgdir/etc/rc.d/pppoj
+}
