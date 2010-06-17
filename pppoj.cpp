@@ -136,7 +136,7 @@ int main( int argc, char* argv[] )
     close(writepipe[0]);
     close(writepipe[1]);
     if(ismaster)
-      execl(PPPD_PATH, "updetach", "persist", "noauth", "passive", "notty", "ipparam", "pppoj", "10.0.0.1:10.0.0.2", NULL);
+      execl(PPPD_PATH, "updetach", "persist", "noauth", "passive", "notty", "ipparam", "pppoj", PPPD_IPS, NULL);
     else
       execl(PPPD_PATH, "nodetach", "notty", "noauth", NULL);
   }
