@@ -22,6 +22,7 @@ clean:
 
 install: pppoj
 	install -D -m0755 pppoj $(DESTDIR)/$(PREFIX)/bin/pppoj
+	install -D -m0644 README $(DESTDIR)/$(PREFIX)/share/doc/pppoj/README
 
 dist:
-	cd .. && tar czf pppoj-`date +%Y%m%d`.tar.gz $(D)/Makefile $(D)/pppoj.cpp
+	cd .. && tar czf pppoj-`date +%Y%m%d`.tar.gz $(D)/Makefile $(D)/pppoj.cpp $(D)/README
