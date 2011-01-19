@@ -44,7 +44,9 @@ BUILD
 1. Type "make"
 2. Type "make install"
 
-You can pass following variables to make command:
+It installs pppoj into /usr/local by default.
+
+You may pass following variables to make command:
 - PREFIX=... to change default (/usr/local) prefix
 - DESTDIR=... to install files into another location
   (usefull for package maintainers)
