@@ -19,9 +19,9 @@ md5sums=('0eaf50cd761105522eb8b0310bd53689'
 build() {
   cd "$srcdir/pppoj.hg"
 
-  make || return 1
-  make install DESTDIR=$pkgdir || return
+  make
+  make install DESTDIR=$pkgdir
 
-  install -D -m0600 $srcdir/pppoj.conf.d $pkgdir/etc/conf.d/pppoj.conf && \
+  install -D -m0600 $srcdir/pppoj.conf.d $pkgdir/etc/conf.d/pppoj.conf
   install -D -m0755 $srcdir/pppoj.rc $pkgdir/etc/rc.d/pppoj
 }
