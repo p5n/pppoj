@@ -3,7 +3,7 @@
 #
 
 DESTDIR=
-PREFIX=/usr
+PREFIX=/usr/local
 PPPD_PATH="\"/usr/sbin/pppd\""
 PPPD_IPS="\"10.0.0.1:10.0.0.2\""
 

@@ -1,0 +1,54 @@
+ABOUT
+-----
+PPP over jabber tool allows to set up point-to-point connection
+between 2 machines over jabber protocol.
+
+Original version: http://www.linux.org.ru/gallery/screenshots/2445958
+
+USAGE
+-----
+
+    pppoj <JID> <password> <other-JID> -master|-slave
+
+Usage example:
+
+Register 2 jabber accounts:
+- gateway@example.com
+- client@another-example.com
+
+On gateway:
+
+    pppoj gateway@example.com gateway-password client@another-example.com -master
+
+On client machine:
+
+    pppoj client@another-example.com client-password gateway@example.com -slave
+
+Now ppp0 interface on gateway has IP 10.0.0.1
+and ppp0 on client - 10.0.0.2
+
+You can do
+
+    $ ping 10.0.0.1
+
+or
+
+    $ ping 10.0.0.2
+
+to test connection.
+
+BUILD
+-----
+
+0. Install dependencies: g++, make, libgloox
+1. Type "make"
+2. Type "make install"
+
+You can pass following variables to make command:
+- PREFIX=... to change default (/usr/local) prefix
+- DESTDIR=... to install files into another location
+  (usefull for package maintainers)
+- PPPD_PATH=... path to pppd
+  default: PPPD_PATH="\"/usr/sbin/pppd\""
+- PPPD_IPS=... 2 IP addresses for pppd
+  default: PPPD_IPS="\"10.0.0.1:10.0.0.2\""
