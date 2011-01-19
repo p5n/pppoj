@@ -46,6 +46,9 @@ BUILD
 
 It installs pppoj into /usr/local by default.
 
+pppoj is single executable that can work from any location, so installation
+is not strictly needed.
+
 You may pass following variables to make command:
 - PREFIX=... to change default (/usr/local) prefix
 - DESTDIR=... to install files into another location
